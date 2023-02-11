@@ -3,7 +3,7 @@ import Video from "../models/Video";
 Video.find({}, (error, videos) => {});
 
 export const home = async (req, res) => {
-  const videos = await Video.find({});
+  const videos = await Video.find({}).sort({ createAt: "asc" });
   return res.render("home", { pageTitle: "Home", videos });
 };
 export const watch = async (req, res) => {
@@ -58,4 +58,22 @@ export const postUpload = async (req, res) => {
       errorMessage: error._message,
     });
   }
+};
+
+//Delete Part
+
+export const deleteVideo = async (req, res) => {
+  const { id } = req.params;
+  await Video.findByIdAndDelete(id);
+  return res.redirect("/");
+};
+
+//Search
+
+export const search = async (req, res) => {
+  const { keyword } = req.query;
+  if (keyword) {
+    const videos = await Video.find({});
+  }
+  return res.render("search");
 };

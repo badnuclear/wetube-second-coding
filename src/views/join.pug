@@ -1,10 +1,13 @@
 extends base.pug
 
 block content 
+   if errorMessage 
+        span=errorMessage 
    form(method="POST")
        input(placeholder="Name",name="name",type="text",requred)
        input(placeholder="Email",name="email",type="email",requred)
        input(placeholder="Username",name="username",type="text",requred)
        input(placeholder="password",name="password",type="password",requred)
+       input(placeholder="Confirm Password",name="password2",type="password",requred)
        input(placeholder="location",name="location",type="text",requred)
        input(type="submit",value="join")

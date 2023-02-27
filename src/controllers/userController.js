@@ -134,6 +134,30 @@ export const finishGithubLogin = async (req, res) => {
     return res.redirect("/login");
   }
 };
+export const startKakaoLogin = (req, res) => {
+  const baseUrl = "https://kauth.kakao.com/oauth/authorize";
+  const config = {
+    client_id: process.env.KAKAO_REST_API,
+    redirect_uri: "http://localhost:4000/users/kakao/finish",
+    response_type: "code",
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+  return res.redirect(finalUrl);
+};
+export const finishKakaoLogin = async (req, res) => {
+  const baseUrl = "https://kauth.kakao.com/oauth/token";
+  const config = {
+    grant_type: "authorization_code",
+    client_id: process.env.KAKAO_REST_API,
+    redirect_uri: "http://localhost:4000/users/kakao/finish",
+    code: req.query.code,
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+  console.log(finalUrl);
+  res.redirect("/login");
+};
 
 export const edit = (req, res) => res.send("Edit User");
 export const logout = (req, res) => {

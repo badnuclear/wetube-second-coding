@@ -155,8 +155,74 @@ export const finishKakaoLogin = async (req, res) => {
   };
   const params = new URLSearchParams(config).toString();
   const finalUrl = `${baseUrl}?${params}`;
-  console.log(finalUrl);
-  res.redirect("/login");
+
+  //토큰 받기
+  const tokenResponse = await (
+    await fetch(finalUrl, {
+      method: "POST",
+    })
+  ).json();
+
+  if ("access_token" in tokenResponse) {
+    const apiUrl = "https://kapi.kakao.com";
+    const { access_token } = tokenResponse;
+
+    const userToken = await (
+      await fetch(`${apiUrl}/v1/user/access_token_info`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      })
+    ).json();
+
+    if (userToken.msg === "no authentication key!") {
+      console.log(userToken.msg);
+      return res.redirect("/login");
+    }
+
+    const userData = await (
+      await fetch(`${apiUrl}/v2/user/me`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          target_id_type: "user_id",
+          target_id: userToken.id,
+          Accept: "application/json",
+        },
+      })
+    ).json();
+
+    //카카오 계정
+    const kakaoAccount = userData.kakao_account;
+    const kakaoProfile = kakaoAccount.profile;
+
+    //카카오 이메일 유무 확인
+    if (
+      kakaoAccount.is_email_valid === false ||
+      kakaoAccount.is_email_verified === false
+    ) {
+      console.log("email is not valid or verified");
+      return res.redirect("/login");
+    }
+
+    let user = await User.findOne({ email: kakaoAccount.email });
+    if (!user) {
+      user = await User.create({
+        name: kakaoProfile.nickname,
+        socialOnly: true,
+        username: kakaoProfile.nickname,
+        email: kakaoAccount.email,
+        password: "",
+        avatarUrl: kakaoProfile.profile_image_url,
+      });
+    }
+    req.session.loggedIn = true;
+    req.session.user = user;
+    return res.redirect("/");
+  } else {
+    return res.redirect("/login");
+  }
 };
 
 export const edit = (req, res) => res.send("Edit User");

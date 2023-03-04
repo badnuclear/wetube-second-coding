@@ -239,7 +239,21 @@ export const postEdit = async (req, res) => {
     },
     body: { name, email, username, location },
   } = req;
-
+  //프로필 수정 중복 확인(username, email)
+  const changeUsername = await User.exists({ username });
+  const changeEmail = await User.exists({ email });
+  if (changeUsername && req.session.user.username !== username) {
+    return res.status(400).render("edit-profile", {
+      pageTitle: "Edit Profile",
+      errorMessage: "해당하는 유져네임은 누군가 사용하고 있는 유져 네임입니다.",
+    });
+  }
+  if (changeEmail && req.session.user.email !== email) {
+    return res.status(400).render("edit-profile", {
+      pageTitle: "Edit Profile",
+      errorMessage: "해당하는 이메일은 누군가 사용하고 있는 이메일입니다.",
+    });
+  }
   const updateUser = await User.findByIdAndUpdate(
     _id,
     {

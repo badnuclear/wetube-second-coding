@@ -1,5 +1,11 @@
-@import "./_variable";
+@import "./config/_variables.scss";
+@import "./config/reset.scss";
 
-body {
-  background-color: $red;
+//components
+@import "./components/header.scss";
+
+//기본
+a {
+  color: inherit;
+  text-decoration: none;
 }

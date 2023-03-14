@@ -5,6 +5,14 @@
 @import "./components/header.scss";
 
 //기본
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background-color: #1c1c1e;
+  color: #f9f5e0;
+}
 a {
   color: inherit;
   text-decoration: none;
